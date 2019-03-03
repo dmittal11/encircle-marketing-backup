@@ -1,0 +1,200 @@
+class User extends AppModel {
+
+    public $validate = array(
+        'promotion_code' => array(
+            'rule' => array('limitDuplicates', 25),
+            'message' => 'This code has been used too many times.'
+        )
+    );
+
+    public function limitDuplicates($check, $limit) {
+        // $check will have value: array('promotion_code' => 'some-value')
+        // $limit will have value: 25
+        $existingPromoCount = $this->find('count', array(
+            'conditions' => $check,
+            'recursive' => -1
+        ));
+        return $existingPromoCount < $limit;
+    }
+}
+
+
+// Add Fcuntion for users Holidays
+
+public function add()
+{
+    $userHoliday = $this->UserHolidays->newEntity();
+    if ($this->request->is('post')) {
+
+    $data = $this->request->getData();
+
+      $string_data1 = implode("-", $data["Start_date"]);
+
+      $string_data2 = implode("-", $data["End_date"]);
+
+      $amended_string1 = substr($string_data1, 0, 10);
+      $amended_string2 = substr($string_data2, 0, 10);
+
+
+
+      $date2=date_create($string_data2);
+      $date1=date_create($string_data1);
+      $diff=date_diff($date1,$date2);
+      $days_print = $diff->format("%R%a days");
+
+      print_r($days_print);
+
+      die();
+
+        $userHoliday = $this->UserHolidays->patchEntity($userHoliday, $this->request->getData());
+        if ($this->UserHolidays->save($userHoliday)) {
+            $this->Flash->success(__('The user holiday has been saved.'));
+
+            return $this->redirect(['action' => 'index']);
+        }
+        $this->Flash->error(__('The user holiday could not be saved. Please, try again.'));
+    }
+    $this->set(compact('userHoliday'));
+}
+
+public function login()
+{
+  if($this->request->is('post')) {
+    $user = $this->Auth->identify();
+    if($user){
+      $this->Auth->setUser($user);
+      return $this->redirect($this->Auth->redirectUrl());
+    }
+    $this->Flash->error(__('Invalid email or password, try again'));
+  }
+}
+
+public function logout()
+{
+  return $this->redirect($this->Auth->logout());
+}
+
+
+public function initialize()
+{
+    parent::initialize();
+
+    $this->loadComponent('RequestHandler', [
+        'enableBeforeRedirect' => false,
+    ]);
+    $this->loadComponent('Flash');
+    $this->loadComponent('Auth', [
+      'authenticate' => [
+            'Form' => ['fields' => ['username' => 'username']]
+      ]
+    ]);
+
+    /*
+     * Enable the following component for recommended CakePHP security settings.
+     * see https://book.cakephp.org/3.0/en/controllers/components/security.html
+     */
+    //$this->loadComponent('Security');
+}
+}
+
+
+
+<?= $this->Html->image("home.png", [
+    "alt" => "Home",
+    'url' => ['controller' => 'users', 'action' => 'index']]);?></li>
+
+
+    <script>
+
+    $(document).ready(function(){
+
+      $('#submit').on('click', function(event){
+
+        // get the form data
+        // there are many ways to get this data using jQuery (you can use the class or id also)
+
+        var formData = {
+          'start_date' : $('input[name=start_date]'),
+          'end_date' : $('input[name=end_date]')
+        };
+
+        console.log(formData);
+
+        // Process the form
+
+        $.ajax({
+            type : 'POST', // define the type of HTTP verb we want to use (POST for our form)
+            url : "http://localhost/encircle-marketing/users/seach",
+            data : formData,
+            dataType : 'json',
+                    encode : true
+
+        })
+        //
+        //     // Using the done promise callback
+        //     .done(function(data) {
+        //       //$('#content').html(data);
+        //       console.log(data);
+        //       // here we will handle errors and validation messages
+        //     });
+        //     // stop the form from submitting the normal way and refreshing the page
+        //     event.preventDefault();
+      //});
+    //});
+    </script>
+
+    $conditions = array(
+
+ 'conditions' => array(
+ 'and' => array(
+                 array('UserTimesheets.start_date >= ' => $start_date ,
+                       'UserTimesheets.start_date <= ' => $end_date
+                      ),
+      'user_id' => $this->Auth->user('id')
+
+     )));
+     $fields= array('fields' => array('id','user_id','start_date','start_time','end_time','duration'));
+
+
+$userTimesheet = $this->UserTimesheets->find('all',  array($conditions ,$fields));
+
+Important Joins
+
+$user_id = $this->UserHolidays->find()
+   ->select([
+     'userEmail' => 'u.email',
+     'name'      => 'u.username',
+     'startDate' => 'UserHolidays.start_date',
+     'endDate' => 'UserHolidays.end_date',
+     // IF we don't use column aliases, result will be grouped by tables joined
+   ])
+   ->join([
+     'table' => 'users',
+     'alias' => 'u',
+     'type' => 'inner',
+     'conditions' => 'UserHolidays.user_id = u.id'
+   ])
+   ->where(
+     ['userHolidays.id' => $id],
+     ['userHolidays.id' => 'integer']
+   )
+   ->first();
+
+ $subject = 'Hello Dinesh from cakephp';
+ $message = 'Hello Dinesh From Cakephp';
+
+ dd($user_id);
+
+ $email = new Email('default');
+
+ try{
+   $email->to($user_id->userEmail)
+     ->subject($subject)
+     ->send($message);
+
+   //$mail = $this->Email->send_mail($to, $subject, $message);
+   //print_r($mail);
+ } catch(Exception $e){
+   echo 'Message could not be sent. Email Error: ', $e->getMessage();
+ }
+}
