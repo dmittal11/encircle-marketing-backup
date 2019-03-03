@@ -334,6 +334,16 @@ class UserHolidaysController extends AppController
 
     public function RejectedUserHolidays($id = null){
 
+      $isAdmin_id = $this->Auth->user('id');
+
+       $this->loadModel('Users');
+
+       $user = $this->Users->get($isAdmin_id, [
+           'contain' => []
+       ]);
+
+      if($user->admin == 1){
+
       $userHoliday = $this->UserHolidays->get($id, [
           'contain' => []
       ]);
@@ -367,10 +377,26 @@ class UserHolidaysController extends AppController
 
       //$user_details = $this->paginate($user_details);
       $this->set('user_details', $user_details);
-
     }
+    else {
+      $this->error(__('You do not have suffcient privileges'))
+      $this->redirect(['controller' => 'Users','action' => 'index']);
+    }
+  }
+
+
 
     public function changeStatusCompleted($id = null){
+
+      $isAdmin_id = $this->Auth->user('id');
+
+       $this->loadModel('Users');
+
+       $user = $this->Users->get($isAdmin_id, [
+           'contain' => []
+       ]);
+
+       if($user->admin == 1){
 
         $userHoliday = $this->UserHolidays->get($id, [
             'contain' => []
@@ -390,9 +416,23 @@ class UserHolidaysController extends AppController
 
                 return $this->redirect(['action' => 'index']);
           }
+          else {
+            $this->error(__('You do not have suffcient privileges'))
+            $this->redirect(['controller' => 'Users','action' => 'index']);
+          }
+        }
 
         public function changeStatusRejected($id = null){
 
+          $isAdmin_id = $this->Auth->user('id');
+
+           $this->loadModel('Users');
+
+           $user = $this->Users->get($isAdmin_id, [
+               'contain' => []
+           ]);
+
+           if($user->admin == 1){
 
             if ($this->request->is(['patch', 'post', 'put'])) {
 
@@ -422,6 +462,11 @@ class UserHolidaysController extends AppController
                     return $this->redirect(['action' => 'index']);
 
             }
+          }
+          else {
+            $this->error(__('You do not have suffcient privileges'))
+            $this->redirect(['controller' => 'Users','action' => 'index']);
+          }
           }
 
 

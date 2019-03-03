@@ -53,6 +53,8 @@ Router::scope('/', function (RouteBuilder $routes) {
         'httpOnly' => true
     ]));
 
+    $routes->connect('users-admin', ['controller' => 'Users', 'action' => 'displayAdmin']);
+
     $routes->connect('pending-user-holidays', ['controller' => 'UserHolidays', 'action' => 'pendingUserHolidays']);
 
     $routes->connect('approved-user-holidays', ['controller' => 'UserHolidays', 'action' => 'ApprovedUserHolidays']);

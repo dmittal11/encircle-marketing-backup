@@ -230,4 +230,29 @@ class UsersController extends AppController
       return intdiv($total, 60). ' Hours '. ($total % 60).' Minutes';
     }
 
+    public function displayAdmin($id = null){
+
+      $isAdmin_id = $this->Auth->user('id');
+
+      $user = $this->Users->get($isAdmin_id, [
+          'contain' => []
+      ]);
+
+      if($user->admin == 1){
+
+
+      $user = $this->Users->get($id, [
+          'contain' => ['UserHolidays', 'UserSickdays', 'UserTimesheets']
+      ]);
+
+      $this->set('user', $user);
+    }
+
+    else{
+      $this->Flash->error(__('The user could not be deleted. Please, try again.'));
+      return $this->redirect(['action' => 'index']);
+
+    }
+
+}
 }

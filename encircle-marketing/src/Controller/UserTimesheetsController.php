@@ -239,6 +239,16 @@ class UserTimesheetsController extends AppController
 
     public function changeStatusApproved($id = null){
 
+      $isAdmin_id = $this->Auth->user('id');
+
+      $this->loadModel('Users');
+
+      $user = $this->Users->get($isAdmin_id, [
+          'contain' => []
+      ]);
+
+      if($user->admin == 1){
+
         $userTimesheet = $this->UserTimesheets->get($id, [
             'contain' => []
         ]);
@@ -249,17 +259,35 @@ class UserTimesheetsController extends AppController
 
       }
 
+
       else {
               $this->Flash->error(__('The user timesheet can not be saved.'));
       }
 
+
+
       return $this->redirect(['action' => 'index']);
+    }
+    else {
+      $this->error(__('You do not have suffcient privileges'))
+      $this->redirect(['controller' => 'Users','action' => 'index']);
+    }
 
 
 
   }
 
   public function changeStatusRejected($id = null){
+
+    $isAdmin_id = $this->Auth->user('id');
+
+    $this->loadModel('Users');
+
+    $user = $this->Users->get($isAdmin_id, [
+        'contain' => []
+    ]);
+
+    if($user->admin == 1){
 
       $userTimesheet = $this->UserTimesheets->get($id, [
           'contain' => []
@@ -278,6 +306,12 @@ class UserTimesheetsController extends AppController
     return $this->redirect(['action' => 'index']);
 
 
+
+}
+else {
+  $this->error(__('You do not have suffcient privileges'))
+  $this->redirect(['controller' => 'Users','action' => 'index']);
+}
 
 }
 
